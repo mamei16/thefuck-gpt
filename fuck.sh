@@ -3,7 +3,7 @@ fuck() {
     fc -s -- -1 2>~/.last_stderr.log
     guessed_command=$(python <insert_path_to>thefuck.py ~/.last_stderr.log)
     if [ "$(echo $ZSH_VERSION)" ]; then
-        print -z $@
+        print -z $guessed_command
     else
         # assume bash or sh
         bind "\"\e[0n\": \"$guessed_command\""
