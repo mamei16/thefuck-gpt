@@ -6,12 +6,11 @@ from llama_cpp import Llama
 
 MODEL_PATH="<path_to_gguf>"
 
-PROMPT = """Respond only with corrected command.
+PROMPT = """Fix the users command.
 Command entered by user: `{}`
-Error message:
-```
+Error message (ignore if not helpful):
 {}
-```
+
 Corrected command:
 """
 
@@ -35,22 +34,25 @@ def correct_command(command: str, error_message: str, prompt: str) -> str:
         min_p=0.,
         repeat_penalty=1.17,
         temperature=0,
-        #stop=["\n"]
+        stop=["\n```"]
     )
     output_str = output["choices"][0]["text"]
     #print(output_str)
     output_str = re.sub("\*\*[Gg]uess:\*\*\s*", "", output_str)
 
-    try:
-        return re.search("```\n.*?(.*)\n```", output_str).group(1)
-    except AttributeError:
-        try:
-            return re.search("```.*?(.*)\n```", output_str).group(1)
-        except AttributeError:
-            try:
-                return re.search("`(.*)`", output_str).group(1)
-            except AttributeError:
-                return output_str.strip()
+    match = re.search("```\n(.*)\n(`{1,3})", output_str)
+    if not match:
+        match = re.search("```[a-zA-Z]*\n(.*)\n(`{1,3})", output_str)
+    if not match:
+        match = re.search("```(.*)\n(`{1,3})", output_str)
+    if not match:
+        match = re.search("```[a-zA-Z]*\n(.*)", output_str)
+    if not match:
+        match = re.search("`(.*)`", output_str)
+    if not match:
+        return output_str.strip()
+    else:
+        return match.group(1)
 
 
 def read_logfile(filename: str) -> (str, str):
