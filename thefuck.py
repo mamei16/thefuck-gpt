@@ -6,7 +6,7 @@ from llama_cpp import Llama
 
 MODEL_PATH="<path_to_gguf>"
 
-PROMPT = """Fix the users command.
+PROMPT = """Fix the user's command.
 Command entered by user: `{}`
 Error message (ignore if not helpful):
 {}
